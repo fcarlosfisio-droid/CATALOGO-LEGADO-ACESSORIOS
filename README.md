@@ -29,7 +29,23 @@ O servidor local atende os endereços diretamente. Uma futura hospedagem deve en
 
 ## Conteúdo inicial
 
-Os oito produtos, preços e ilustrações SVG são demonstrativos. Atualize a lista `products` em `app.js` com o catálogo real. As ilustrações foram criadas para esta interface e não representam fotografias de produtos reais. Não há pagamento, estoque ou pedidos integrados nesta primeira versão.
+Os oito produtos, preços e ilustrações SVG são demonstrativos. Atualize a lista `products` em `products.mjs` com o catálogo real. As ilustrações foram criadas para esta interface e não representam fotografias de produtos reais. O botão Comprar abre o WhatsApp para atendimento; não há pagamento ou estoque integrado.
+
+## Produtos e compra pelo WhatsApp
+
+Cada produto abre em `/produtos/nome-do-produto/`, inclusive por acesso direto e recarregamento. Os detalhes apresentam descrição, preço ilustrativo, favoritos, botão Comprar e cópia do link público. Fechar os detalhes retorna ao endereço anterior ou à categoria do produto quando aberto diretamente.
+
+O destino é `5583986858298`, correspondente a +55 83 98685-8298. O link `wa.me` prepara uma mensagem com o nome e o endereço público do produto. A aplicação não envia mensagens nem usa uma API de envio do WhatsApp.
+
+## Publicação no GitHub Pages
+
+Endereço público previsto: https://fcarlosfisio-droid.github.io/CATALOGO-LEGADO-ACESSORIOS/
+
+Execute `npm run build` para atualizar `docs/` após alterações. São geradas páginas estáticas para início, catálogo, quatro categorias e oito produtos. Os links e caminhos dos arquivos são adaptados ao subdiretório do repositório, permitindo abrir produtos diretamente em outro navegador.
+
+Para ativar, entre nas configurações do repositório em **Settings > Pages**, selecione **Deploy from a branch**, branch **main**, pasta **/docs**, e salve. A geração dos arquivos não ativa a hospedagem. Até essa configuração ser concluída, o endereço público não estará disponível.
+
+O domínio e o número estão centralizados em `site-config.mjs`. Ao adotar outro domínio, atualize `PUBLIC_BASE_URL`, gere novamente `docs/` e confira os links de compra.
 
 As fontes Google Fonts são opcionais. A interface utiliza fontes locais alternativas caso não haja conexão.
 

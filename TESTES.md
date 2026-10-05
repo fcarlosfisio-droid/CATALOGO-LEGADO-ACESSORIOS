@@ -34,3 +34,18 @@ Os seis testes de `catalog.test.mjs` passaram, cobrindo:
 Os arquivos de aplicação, navegação e servidor também passaram pela verificação de sintaxe.
 
 Todas as categorias demonstrativas possuem produtos. O cenário de categoria sem produtos foi validado nos testes automatizados com uma lista vazia; não foi apresentado como se tivesse sido testado manualmente com o catálogo atual.
+
+## Detalhes e WhatsApp
+
+- Foram abertos os oito produtos pelos controles da interface. Cada um mostrou seu nome, descrição e preço, com endereço próprio e mensagem correspondente.
+- O botão Comprar do Relógio Essencial Azul foi clicado. A página do WhatsApp mostrou **Conversar com +55 83 98685-8298 no WhatsApp** e a mensagem com o nome da peça e o link público. Nenhuma mensagem foi enviada.
+- O controle Copiar link apresentou a confirmação “Link copiado”. O campo de compartilhamento contém o mesmo link público usado na mensagem.
+- O acesso independente à página estática do Relógio Essencial Azul foi validado em outra aba, pelo servidor local e com o mesmo subdiretório planejado para o GitHub Pages. A peça correta abriu sem passar pela página inicial.
+- Em tela de 390 × 640, os detalhes permitiram rolagem, mantiveram o botão Fechar visível e fecharam corretamente. Não houve rolagem horizontal.
+- O navegador não apresentou erros durante a conferência dos oito produtos.
+
+Os quatro testes de `product.test.mjs` e os seis testes de categorias passaram: **10 aprovados**. A geração estática de 14 páginas também foi concluída.
+
+### Pendência de hospedagem pública
+
+O link público foi aberto em uma aba separada e o GitHub Pages informou que ainda não existe um site publicado. A conta do navegador não estava conectada ao GitHub para ativar a configuração Pages. O teste público externo permanece pendente até a ativação; o teste local independente não substitui essa validação.
