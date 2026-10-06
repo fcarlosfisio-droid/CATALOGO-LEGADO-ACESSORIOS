@@ -38,7 +38,6 @@ export function mountCatalog({ products, favorites, art, icon }) {
     $('#search').value = query;
     const home = route.page === 'home';
     $('#inicio').hidden = !home;
-    $('.values').hidden = !home;
     $('.breadcrumbs').hidden = home;
     $('#breadcrumb-category').textContent = route.page === 'category' || selectedProduct ? `/ ${category}` : '';
     $('#search-panel').hidden = home && !query;
@@ -132,7 +131,7 @@ export function mountCatalog({ products, favorites, art, icon }) {
   }
 
   function showProduct(product) {
-    $('#dialog-content').innerHTML = `<div class="dialog-grid"><div class="dialog-art">${art(product.category, product.variant)}</div><div class="dialog-copy"><div class="eyebrow">${product.category}</div><h2 id="product-name">${product.name}</h2><p>${product.description}</p><span class="price">${money(product.price)}</span><p><small>Peça demonstrativa. Confirme material, medidas, disponibilidade e preço final com a loja.</small></p><div class="purchase-actions"><a class="button buy-button" href="${purchaseUrl(product)}" rel="noopener noreferrer">Comprar ${icon('arrow')}</a><button class="detail-favorite" data-favorite="${product.id}" aria-pressed="${favorites.has(product.id)}">${icon('heart')} ${favorites.has(product.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'}</button></div><p class="purchase-note">Você será levado ao WhatsApp com a mensagem pronta. O envio é feito por você.</p><div class="share-product"><label for="product-share-link">Link público do produto</label><input id="product-share-link" type="url" readonly value="${productPublicUrl(product)}"><button class="copy-link" type="button">Copiar link</button><span class="copy-feedback" role="status"></span></div></div></div>`;
+    $('#dialog-content').innerHTML = `<div class="dialog-grid"><div class="dialog-art">${art(product.category, product.variant)}</div><div class="dialog-copy"><div class="eyebrow">${product.category}</div><h2 id="product-name">${product.name}</h2><p>${product.description}</p><span class="price">${money(product.price)}</span><p><small>Peça demonstrativa. Confirme material, medidas, disponibilidade e preço final com a loja.</small></p><div class="purchase-actions"><a class="button buy-button" href="${purchaseUrl(product)}" rel="noopener noreferrer">Comprar ${icon('arrow')}</a><button class="detail-favorite" data-favorite="${product.id}" aria-pressed="${favorites.has(product.id)}">${icon('heart')} ${favorites.has(product.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'}</button></div><p class="purchase-note">Você será levado ao WhatsApp com a mensagem pronta. O envio é feito por você.</p><details class="share-product"><summary>Compartilhar produto</summary><label for="product-share-link">Link público do produto</label><input id="product-share-link" type="url" readonly value="${productPublicUrl(product)}"><button class="copy-link" type="button">Copiar link</button><span class="copy-feedback" role="status"></span></details></div></div>`;
     const modal = $('#product-dialog');
     modal.setAttribute('aria-labelledby', 'product-name');
     if (!modal.open) modal.showModal();
