@@ -1,4 +1,18 @@
 import { mountCatalog } from './navigation.mjs';
+import { STORE_CONTACTS, WHATSAPP_NUMBER } from './site-config.mjs';
+document.querySelector('#footer-whatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}`;
+for (const key of ['instagram', 'email', 'address', 'hours']) {
+  const value = STORE_CONTACTS[key].trim();
+  if (!value) continue;
+  const target = document.querySelector(`#footer-${key}`);
+  if (key === 'instagram' || key === 'email') {
+    const link = document.createElement('a');
+    link.id = target.id;
+    link.textContent = key === 'instagram' ? '@' + value.replace(/^@/, '') : value;
+    link.href = key === 'instagram' ? `https://www.instagram.com/${encodeURIComponent(value.replace(/^@/, ''))}/` : `mailto:${value}`;
+    target.replaceWith(link);
+  } else target.textContent = value;
+}
 const icons={search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',heart:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',arrow:'<path d="M4 12h16m-6-6 6 6-6 6"/>',diamond:'<path d="m3 8 4-5h10l4 5-9 13L3 8Zm0 0h18M7 3l5 18 5-18"/>',watch:'<rect x="5" y="6" width="14" height="12" rx="4"/><path d="m8 6 1-4h6l1 4m-8 12 1 4h6l1-4M12 9v3l2 1"/>',layers:'<path d="m12 3 10 6-10 6L2 9l10-6Zm-10 11 10 6 10-6M2 19l10 6 10-6"/>'};
 const icon=name=>`<svg class="icon" viewBox="0 0 24 24" aria-hidden="true">${icons[name]||icons.arrow}</svg>`;
 function paintIcons(root=document){root.querySelectorAll('[data-icon]').forEach(el=>{el.insertAdjacentHTML('afterbegin',icon(el.dataset.icon));el.removeAttribute('data-icon');});}paintIcons();
