@@ -1,7 +1,8 @@
 import { categories, selectProducts, readRoute, emptyState } from './catalog.mjs';
 import { APP_BASE_PATH, sitePath, productSlug, productPublicUrl, purchaseUrl } from './site-config.mjs';
+const escapeHtml = value => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character]));
 
-export function mountCatalog({ products, favorites, art, icon }) {
+export function mountCatalog({ products, favorites, art, icon, catalogUnavailable = false }) {
   const $ = selector => document.querySelector(selector);
   const money = value => value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   let route, category = 'Todos', query = '', onlyFavorites = false, sort = 'featured';
@@ -68,17 +69,18 @@ export function mountCatalog({ products, favorites, art, icon }) {
   }
 
   function renderEmpty() {
-    const state = emptyState({ missing: route.page === 'missing', onlyFavorites, query, category });
+    const state = catalogUnavailable ? { title: 'Não foi possível carregar o catálogo', message: 'Tente novamente em alguns instantes.', action: 'Tentar novamente', kind: 'reload' } : emptyState({ missing: route.page === 'missing', onlyFavorites, query, category });
     const container = document.createElement('div');
     container.className = 'empty';
     const heading = document.createElement('h3');
     heading.textContent = state.title;
     const description = document.createElement('p');
     description.textContent = state.message;
-    const action = document.createElement(state.kind === 'search' ? 'button' : 'a');
+    const action = document.createElement(state.kind === 'search' || state.kind === 'reload' ? 'button' : 'a');
     action.className = 'button empty-action';
     action.textContent = state.action;
     if (state.kind === 'search') action.dataset.clearSearch = '';
+    else if (state.kind === 'reload') action.dataset.reloadCatalog = '';
     else action.href = sitePath('/catalogo');
     container.append(heading, description, action);
     $('#products').replaceChildren(container);
@@ -86,9 +88,9 @@ export function mountCatalog({ products, favorites, art, icon }) {
 
   function render() {
     const list = route.page === 'missing' ? [] : selectProducts(products, { category, query, onlyFavorites, favorites, sort });
-    if (list.length) $('#products').innerHTML = list.map(p => `<article class="product"><div class="product-image"><div class="art">${art(p.category, p.variant)}</div>${p.badge ? `<span class="product-badge">${p.badge}</span>` : ''}<button class="favorite" data-favorite="${p.id}" aria-label="${favorites.has(p.id) ? 'Remover dos' : 'Adicionar aos'} favoritos: ${p.name}" aria-pressed="${favorites.has(p.id)}">${icon('heart')}</button></div><div class="product-info"><small>${p.category}</small><button class="product-title" data-product="${p.id}">${p.name}</button><div class="product-meta"><span class="price">${money(p.price)}</span><button class="details" data-product="${p.id}">Ver detalhes</button></div></div></article>`).join('');
+    if (list.length) $('#products').innerHTML = list.map(p => `<article class="product"><div class="product-image"><div class="art">${art(p.category, p.variant)}</div>${p.badge ? `<span class="product-badge">${escapeHtml(p.badge)}</span>` : ''}<button class="favorite" data-favorite="${p.id}" aria-label="${favorites.has(p.id) ? 'Remover dos' : 'Adicionar aos'} favoritos: ${escapeHtml(p.name)}" aria-pressed="${favorites.has(p.id)}">${icon('heart')}</button></div><div class="product-info"><small>${p.category}</small><button class="product-title" data-product="${p.id}">${escapeHtml(p.name)}</button><div class="product-meta"><span class="price">${money(p.price)}</span><button class="details" data-product="${p.id}">Ver detalhes</button></div></div></article>`).join('');
     else renderEmpty();
-    $('#results-count').textContent = `${list.length} ${list.length === 1 ? 'acessório encontrado' : 'acessórios encontrados'}${onlyFavorites ? ' nos favoritos' : ''}`;
+    $('#results-count').textContent = catalogUnavailable ? 'Catálogo indisponível' : `${list.length} ${list.length === 1 ? 'acessório encontrado' : 'acessórios encontrados'}${onlyFavorites ? ' nos favoritos' : ''}`;
     $('#clear-search').hidden = !query;
     $('#reset').hidden = !query && !onlyFavorites;
     $('#reset').textContent = query ? 'Limpar pesquisa' : 'Ver todos os produtos';
@@ -131,7 +133,7 @@ export function mountCatalog({ products, favorites, art, icon }) {
   }
 
   function showProduct(product) {
-    $('#dialog-content').innerHTML = `<div class="dialog-grid"><div class="dialog-art">${art(product.category, product.variant)}</div><div class="dialog-copy"><div class="eyebrow">${product.category}</div><h2 id="product-name">${product.name}</h2><p>${product.description}</p><span class="price">${money(product.price)}</span><p><small>Peça demonstrativa. Confirme material, medidas, disponibilidade e preço final com a loja.</small></p><div class="purchase-actions"><a class="button buy-button" href="${purchaseUrl(product)}" rel="noopener noreferrer">Comprar ${icon('arrow')}</a><button class="detail-favorite" data-favorite="${product.id}" aria-pressed="${favorites.has(product.id)}">${icon('heart')} ${favorites.has(product.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'}</button></div><p class="purchase-note">Você será levado ao WhatsApp com a mensagem pronta. O envio é feito por você.</p><details class="share-product"><summary>Compartilhar produto</summary><label for="product-share-link">Link público do produto</label><input id="product-share-link" type="url" readonly value="${productPublicUrl(product)}"><button class="copy-link" type="button">Copiar link</button><span class="copy-feedback" role="status"></span></details></div></div>`;
+    $('#dialog-content').innerHTML = `<div class="dialog-grid"><div class="dialog-art">${art(product.category, product.variant)}</div><div class="dialog-copy"><div class="eyebrow">${product.category}</div><h2 id="product-name">${escapeHtml(product.name)}</h2><p>${escapeHtml(product.description)}</p><span class="price">${money(product.price)}</span><p><small>Peça demonstrativa. Confirme material, medidas, disponibilidade e preço final com a loja.</small></p><div class="purchase-actions"><a class="button buy-button" href="${purchaseUrl(product)}" rel="noopener noreferrer">Comprar ${icon('arrow')}</a><button class="detail-favorite" data-favorite="${product.id}" aria-pressed="${favorites.has(product.id)}">${icon('heart')} ${favorites.has(product.id) ? 'Remover dos favoritos' : 'Salvar nos favoritos'}</button></div><p class="purchase-note">Você será levado ao WhatsApp com a mensagem pronta. O envio é feito por você.</p><details class="share-product"><summary>Compartilhar produto</summary><label for="product-share-link">Link público do produto</label><input id="product-share-link" type="url" readonly value="${productPublicUrl(product)}"><button class="copy-link" type="button">Copiar link</button><span class="copy-feedback" role="status"></span></details></div></div>`;
     const modal = $('#product-dialog');
     modal.setAttribute('aria-labelledby', 'product-name');
     if (!modal.open) modal.showModal();
@@ -151,6 +153,7 @@ export function mountCatalog({ products, favorites, art, icon }) {
       return;
     }
     if (event.target.closest('[data-clear-search], #clear-search')) { clearSearch(); return; }
+    if (event.target.closest('[data-reload-catalog]')) { location.reload(); return; }
     if (event.target.closest('.copy-link')) {
       const field = $('#product-share-link');
       navigator.clipboard.writeText(field.value).then(() => {

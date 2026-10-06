@@ -1,4 +1,10 @@
 export const PUBLIC_BASE_URL = 'https://fcarlosfisio-droid.github.io/CATALOGO-LEGADO-ACESSORIOS/';
+let catalogBaseUrl = PUBLIC_BASE_URL;
+export function configurePublicBaseUrl(value) {
+  const url = new URL(value);
+  if (url.protocol !== 'https:') throw new Error('O endereço público deve usar HTTPS.');
+  catalogBaseUrl = url.href;
+}
 export const APP_BASE_PATH = typeof document === 'undefined' ? '/' : document.querySelector('meta[name="app-base"]')?.content || '/';
 
 export function sitePath(path, basePath = APP_BASE_PATH) {
@@ -7,8 +13,8 @@ export function sitePath(path, basePath = APP_BASE_PATH) {
   return prefix + (path.startsWith('/') ? path : '/' + path);
 }
 
-export const productSlug = product => product.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-export const productPublicUrl = (product, baseUrl = PUBLIC_BASE_URL) => new URL(`produtos/${productSlug(product)}/`, baseUrl).href;
+export const productSlug = product => product.slug || product.name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export const productPublicUrl = (product, baseUrl = catalogBaseUrl) => new URL(`produtos/${productSlug(product)}/`, baseUrl).href;
 export const WHATSAPP_NUMBER = '5583986858298';
 export const STORE_CONTACTS = { instagram: '', email: '', address: '', hours: '' };
 export function purchaseUrl(product) {

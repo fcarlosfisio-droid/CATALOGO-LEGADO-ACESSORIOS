@@ -1,5 +1,5 @@
 import { mountCatalog } from './navigation.mjs';
-import { STORE_CONTACTS, WHATSAPP_NUMBER } from './site-config.mjs';
+import { STORE_CONTACTS, WHATSAPP_NUMBER, APP_BASE_PATH, configurePublicBaseUrl } from './site-config.mjs';
 document.querySelector('#footer-whatsapp').href = `https://wa.me/${WHATSAPP_NUMBER}`;
 for (const key of ['instagram', 'email', 'address', 'hours']) {
   const value = STORE_CONTACTS[key].trim();
@@ -35,6 +35,19 @@ function art(type,variant='silver'){
  return `<svg viewBox="0 0 300 470" aria-hidden="true">${defs}${shape}</svg>`;
 }
 document.querySelector('#hero-art').innerHTML=art('Relógios');
-import { products } from './products.mjs';
+import { products as demonstrationProducts } from './products.mjs';
+let products = demonstrationProducts;
+let catalogUnavailable = false;
+if (APP_BASE_PATH === '/') {
+  try {
+    const response = await fetch('/api/products', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Catálogo indisponível.');
+    {
+      const catalog = await response.json();
+      products = catalog.products;
+      configurePublicBaseUrl(catalog.publicBaseUrl);
+    }
+  } catch { products = []; catalogUnavailable = true; }
+}
 let favorites;try{favorites=new Set(JSON.parse(localStorage.getItem('legado-favorites')||'[]'));}catch{favorites=new Set();}
-mountCatalog({ products, favorites, art, icon });
+mountCatalog({ products, favorites, art, icon, catalogUnavailable });

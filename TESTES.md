@@ -49,3 +49,13 @@ Os quatro testes de `product.test.mjs` e os seis testes de categorias passaram: 
 ### Pendência de hospedagem pública
 
 O link público foi aberto em uma aba separada e o GitHub Pages informou que ainda não existe um site publicado. A conta do navegador não estava conectada ao GitHub para ativar a configuração Pages. O teste público externo permanece pendente até a ativação; o teste local independente não substitui essa validação.
+
+## Autenticação administrativa
+
+Em 6 de outubro de 2026, a suíte completa passou com **29 testes aprovados**, incluindo 19 testes administrativos. Foram verificados login incorreto, alteração sem sessão, papéis individuais, CSRF, origem, cookies, logout, expiração, limites, recuperação e persistência. Também foram testados logout durante uma alteração em andamento e utilização simultânea do token de recuperação.
+
+A interface foi conferida em banco temporário: login com erro e válido, produto cadastrado aparecendo no catálogo, texto HTML tratado como texto, convite individual, nova senha, login de funcionário e logout. O banco real não recebeu essas contas ou produtos de teste.
+
+O assistente de primeiro acesso foi validado num arquivo temporário, com senha mascarada. O catálogo local continuou mostrando os oito produtos existentes, e o acesso `/admin` mostrou a tela de login.
+
+A revisão final está em [REVISAO_TECNICA.md](REVISAO_TECNICA.md).

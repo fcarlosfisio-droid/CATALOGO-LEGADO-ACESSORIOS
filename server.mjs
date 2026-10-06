@@ -1,31 +1,16 @@
 import http from 'node:http';
-import {readFile} from 'node:fs/promises';
-import {fileURLToPath} from 'node:url';
 import path from 'node:path';
-import { PUBLIC_BASE_URL } from './site-config.mjs';
-const root=fileURLToPath(new URL('.',import.meta.url));
-const publicPrefix = new URL(PUBLIC_BASE_URL).pathname.replace(/\/$/, '');
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml' };
-http.createServer(async (request, response) => {
-  try {
-    const pathname = decodeURIComponent(new URL(request.url, 'http://localhost').pathname);
-    const publicPreview = pathname === publicPrefix || pathname.startsWith(publicPrefix + '/');
-    const directory = publicPreview ? path.join(root, 'docs') + path.sep : root;
-    const relative = publicPreview ? pathname.slice(publicPrefix.length) : pathname;
-    const page = relative === '' || relative === '/' || relative === '/catalogo' || relative === '/catalogo/' || relative.startsWith('/categorias/') || relative.startsWith('/produtos/');
-    const filename = page ? (publicPreview ? (relative.replace(/\/$/, '') || '') + '/index.html' : '/index.html') : relative;
-    const file = path.resolve(directory, '.' + filename);
-    if (!file.startsWith(directory)) { response.writeHead(403); return response.end(); }
-    let content;
-    try { content = await readFile(file); }
-    catch (error) {
-      if (!publicPreview || !page) throw error;
-      content = await readFile(path.join(directory, '404.html'));
-    }
-    response.writeHead(200, { 'Content-Type': types[path.extname(file)] || 'application/octet-stream' });
-    response.end(content);
-  } catch {
-    response.writeHead(404);
-    response.end('Página não encontrada');
-  }
-}).listen(3000, '127.0.0.1', () => console.log('Catálogo Legado disponível em http://localhost:3000'));
+import { fileURLToPath } from 'node:url';
+import { AdminStore } from './admin-store.mjs';
+import { createApplication } from './app-server.mjs';
+const root = fileURLToPath(new URL('.', import.meta.url));
+const origin = new URL(process.env.APP_ORIGIN || 'http://localhost:3000');
+const local = ['localhost','127.0.0.1','[::1]'].includes(origin.hostname);
+if (origin.pathname !== '/' || origin.search || origin.hash || origin.username || origin.password) throw new Error('APP_ORIGIN deve conter somente protocolo, host e porta.');
+if ((process.env.NODE_ENV === 'production' || !local) && origin.protocol !== 'https:') throw new Error('Use APP_ORIGIN com HTTPS em produção.');
+const store = new AdminStore({ filename: process.env.ADMIN_DB_PATH || path.join(root, 'data/legado.sqlite') });
+const server = http.createServer(createApplication({ store, origin: origin.origin, secureCookies: origin.protocol === 'https:' }));
+server.requestTimeout = 15000;
+server.headersTimeout = 15000;
+server.listen(Number(process.env.PORT || 3000), process.env.HOST || '127.0.0.1', () => console.log(`Catálogo Legado: ${origin.origin}\nAdministração: ${origin.origin}/admin`));
+for (const signal of ['SIGINT','SIGTERM']) process.on(signal, () => server.close(() => { store.close(); process.exit(0); }));
