@@ -39,7 +39,6 @@ export function mountCatalog({ products, favorites, art, icon }) {
     const home = route.page === 'home';
     $('#inicio').hidden = !home;
     $('.values').hidden = !home;
-    $('#sobre').hidden = !home;
     $('.breadcrumbs').hidden = home;
     $('#breadcrumb-category').textContent = route.page === 'category' || selectedProduct ? `/ ${category}` : '';
     $('#search-panel').hidden = home && !query;
@@ -47,7 +46,7 @@ export function mountCatalog({ products, favorites, art, icon }) {
     document.title = `${selectedProduct ? selectedProduct.name : route.page === 'category' ? category : home ? 'LEGADO' : 'Catálogo'} | Acessórios masculinos`;
     $('#catalogo').classList.toggle('category-page', !home);
     document.querySelectorAll('#navigation a').forEach(link => {
-      const active = home ? link.hash === (location.hash === '#sobre' ? '#sobre' : '#inicio') : link.pathname === sitePath('/catalogo');
+      const active = home ? link.hash === '#inicio' : link.pathname === sitePath('/catalogo');
       link.classList.toggle('active', active);
       if (active) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
@@ -57,8 +56,7 @@ export function mountCatalog({ products, favorites, art, icon }) {
     if (selectedProduct) showProduct(selectedProduct);
     else $('#product-dialog').close();
     if (scroll) {
-      if (home && location.hash === '#sobre') $('#sobre').scrollIntoView({ behavior: 'instant' });
-      else window.scrollTo({ top: 0, behavior: 'instant' });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
   }
 
